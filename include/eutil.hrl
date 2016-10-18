@@ -1,5 +1,5 @@
--ifndef(__EPUSH_HRL__).
--define(__EPUSH_HRL__, 0).
+-ifndef(__EUTIL_HRL__).
+-define(__EUTIL_HRL__, 0).
 
 -define(DEBUG_MSG(Str), lager:debug(Str)).
 -define(DEBUG_MSG(Format, Args), lager:debug(Format, Args)).
@@ -26,6 +26,11 @@
                                           end).
 
 -define(TRACE_VAR(Arg), io:format("~n******~nModule: ~p, Line: ~p, ~nMy print's ~p is ~p~n******~n", [?MODULE, ?LINE, ??Arg, Arg])).
+
+-define(URLENCODED_CONTENT_TYPE, <<"application/x-www-form-urlencoded; charset=utf-8">>).
+-define(URLENCEDED_HEAD, {<<"Content-Type">>, ?URLENCODED_CONTENT_TYPE}).
+-define(JSON_CONTENT_TYPE, <<"application/json; charset=utf-8">>).
+-define(JSON_HEAD, {<<"Content-Type">>, ?JSON_CONTENT_TYPE}).
 
 
 
