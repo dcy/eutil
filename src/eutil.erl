@@ -2,7 +2,7 @@
 -export([urlencode/1,
          md5_hex/1,
          to_list/1,
-         http_get/1, http_get/2, http_get/3,
+         http_get/1, http_get/2, http_get/4,
          http_post/4
         ]).
 
@@ -90,16 +90,16 @@ http_get(URL) ->
     {ok, ResultBin} = hackney:body(ClientRef),
     jiffy:decode(ResultBin, [return_maps]).
 
-http_get(URL, ReqMaps) ->
-    http_get(URL, ReqMaps, []).
+http_get(URL, Query) ->
+    http_get(URL, [], Query, []).
 
-http_get(URL, ReqMaps, Options) ->
-    ReqItems = case is_map(ReqMaps) of
-                   true -> maps:to_list(ReqMaps);
-                   false -> ReqMaps
+http_get(URL, Headers, Query, Options) ->
+    ReqItems = case is_map(Query) of
+                   true -> maps:to_list(Query);
+                   false -> Query
                end,
     NewURL = hackney_url:make_url(URL, [], ReqItems),
-    {ok, _StatusCode, _RespHeaders, ClientRef} = hackney:request(get, NewURL, [],
+    {ok, _StatusCode, _RespHeaders, ClientRef} = hackney:request(get, NewURL, Headers,
                                                                  <<>>, Options),
     {ok, ResultBin} = hackney:body(ClientRef),
     jiffy:decode(ResultBin, [return_maps]).
