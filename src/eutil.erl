@@ -2,7 +2,7 @@
 -export([urlencode/1,
          md5_hex/1,
          to_list/1,
-         http_get/1, http_get/2, http_get/4,
+         http_get/1, http_get/2, http_get/3,
          http_post/4
         ]).
 
@@ -82,26 +82,25 @@ to_list(Item) when is_list(Item) ->
 to_list(Item) when is_atom(Item) ->
     erlang:atom_to_list(Item).
 
+
+
 http_get(URL) ->
     {ok, _StatusCode, _RespHeaders, ClientRef} = hackney:request(post, URL, [],
-                                                                 <<>>, []),
+                                                                 <<>>, []), 
     {ok, ResultBin} = hackney:body(ClientRef),
     jiffy:decode(ResultBin, [return_maps]).
 
-http_get(URL, Options) ->
-    {ok, _StatusCode, _RespHeaders, ClientRef} = hackney:request(post, URL, [],
-                                                                 <<>>, Options), 
-    {ok, ResultBin} = hackney:body(ClientRef),
-    jiffy:decode(ResultBin, [return_maps]).
+http_get(URL, ReqMaps) ->
+    http_get(URL, ReqMaps, []).
 
-http_get(URL, Headers, PayloadMaps, Options) ->
-    [Header | _] = Headers,
-    Payload = case Header of
-                  ?URLENCEDED_HEAD -> urlencode(PayloadMaps);
-                  ?JSON_HEAD -> jiffy:encode(PayloadMaps)
-              end,
-    {ok, _StatusCode, _RespHeaders, ClientRef} = hackney:request(get, URL, Headers,
-                                                                 Payload, Options),
+http_get(URL, ReqMaps, Options) ->
+    ReqItems = case is_map(ReqMaps) of
+                   true -> maps:to_list(ReqMaps);
+                   false -> ReqMaps
+               end,
+    NewURL = hackney_url:make_url(URL, [], ReqItems),
+    {ok, _StatusCode, _RespHeaders, ClientRef} = hackney:request(get, NewURL, [],
+                                                                 <<>>, Options),
     {ok, ResultBin} = hackney:body(ClientRef),
     jiffy:decode(ResultBin, [return_maps]).
 
