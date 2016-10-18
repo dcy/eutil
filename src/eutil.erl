@@ -85,10 +85,7 @@ to_list(Item) when is_atom(Item) ->
 
 
 http_get(URL) ->
-    {ok, _StatusCode, _RespHeaders, ClientRef} = hackney:request(post, URL, [],
-                                                                 <<>>, []), 
-    {ok, ResultBin} = hackney:body(ClientRef),
-    jiffy:decode(ResultBin, [return_maps]).
+    http_get(URL, [], [], []).
 
 http_get(URL, Query) ->
     http_get(URL, [], Query, []).
