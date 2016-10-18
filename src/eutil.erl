@@ -1,7 +1,7 @@
 -module(eutil).
 -export([urlencode/1,
          md5_hex/1,
-         to_list/1,
+         to_list/1, to_binary/1,
          http_get/1, http_get/2, http_get/4,
          http_post/4
         ]).
@@ -81,6 +81,13 @@ to_list(Item) when is_list(Item) ->
     Item;
 to_list(Item) when is_atom(Item) ->
     erlang:atom_to_list(Item).
+
+to_binary(Item) when is_list(Item) ->
+    list_to_binary(Item);
+to_binary(Item) when is_binary(Item) ->
+    Item;
+to_binary(Item) when is_atom(Item) ->
+    erlang:atom_to_binary(Item, utf8).
 
 
 
