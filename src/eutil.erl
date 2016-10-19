@@ -120,10 +120,10 @@ http_post(URL, Headers, Payload, Options) when is_binary(Payload) ->
 http_post(URL, Headers, PayloadMaps, Options) when is_map(PayloadMaps) ->
     [Header | _] = Headers,
     Payload = case Header of
-                  ?URLENCEDED_HEAD -> urlencode(PayloadMaps);
+                  ?URLENCEDED_HEAD -> list_to_binary(urlencode(PayloadMaps));
                   ?JSON_HEAD -> jiffy:encode(PayloadMaps)
               end,
     http_post(URL, Headers, Payload, Options);
 http_post(URL, Headers, PayloadItems, Options) when is_list(PayloadItems) ->
-    Payload = urlencode(PayloadItems),
+    Payload = list_to_binary(urlencode(PayloadItems)),
     http_post(URL, Headers, Payload, Options).
