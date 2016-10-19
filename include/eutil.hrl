@@ -29,8 +29,10 @@
 
 -define(URLENCODED_CONTENT_TYPE, <<"application/x-www-form-urlencoded; charset=utf-8">>).
 -define(URLENCEDED_HEAD, {<<"Content-Type">>, ?URLENCODED_CONTENT_TYPE}).
+-define(URLENCEDED_HEADS, [?URLENCEDED_HEAD]).
 -define(JSON_CONTENT_TYPE, <<"application/json; charset=utf-8">>).
 -define(JSON_HEAD, {<<"Content-Type">>, ?JSON_CONTENT_TYPE}).
+-define(JSON_HEADS, [?JSON_HEAD]).
 
 
 
