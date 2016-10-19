@@ -27,6 +27,8 @@
 
 -define(TRACE_VAR(Arg), io:format("~n******~nModule: ~p, Line: ~p, ~nMy print's ~p is ~p~n******~n", [?MODULE, ?LINE, ??Arg, Arg])).
 
+-define(SUCCESS_0, 0).
+
 -define(URLENCODED_CONTENT_TYPE, <<"application/x-www-form-urlencoded; charset=utf-8">>).
 -define(URLENCEDED_HEAD, {<<"Content-Type">>, ?URLENCODED_CONTENT_TYPE}).
 -define(URLENCEDED_HEADS, [?URLENCEDED_HEAD]).
