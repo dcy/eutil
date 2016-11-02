@@ -8,6 +8,7 @@
          term_to_bitstring/1, bitstring_to_term/1,
          get_ets/2, put_ets/3, del_ets/2, get_ets_keys/1, get_ets_keys/2,
          mapskeydelete/3, mapskeyreplace/4, mapskeyfind/3,
+         get_cowboy_post_vals/1,
          eval/2
         ]).
 
@@ -442,3 +443,10 @@ mapskeyfind(What, Key, [H|T]) ->
 		false -> mapskeyfind(What, Key, T)
 	end.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+get_cowboy_post_vals(Req) ->
+    {ok, OriPostVals, _Req} = cowboy_req:body_qs(Req),
+    case OriPostVals of
+        [{JsonBin, true}] -> jsx:decode(JsonBin, [return_maps]);
+        Other -> maps:from_list(Other)
+    end.
