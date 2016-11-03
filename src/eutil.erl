@@ -447,6 +447,6 @@ mapskeyfind(What, Key, [H|T]) ->
 get_cowboy_post_vals(Req) ->
     {ok, OriPostVals, _Req} = cowboy_req:body_qs(Req),
     case OriPostVals of
-        [{JsonBin, true}] -> jsx:decode(JsonBin, [return_maps]);
+        [{JsonBin, true}] -> jiffy:decode(JsonBin, [return_maps]);
         Other -> maps:from_list(Other)
     end.
