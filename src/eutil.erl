@@ -1,7 +1,7 @@
 -module(eutil).
 -export([urlencode/1,
          md5_hex/1,
-         to_list/1, to_binary/1,
+         to_list/1, to_binary/1, to_atom/1,
          http_get/1, http_get/2, http_get/4,
          http_post/3, http_post/4,
          term_to_string/1, string_to_term/1,
@@ -273,14 +273,20 @@ hex(N) when N >= 10, N < 16 ->
 	$a + (N - 10).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-to_list(Item) when is_integer(Item) ->
-    erlang:integer_to_list(Item);
 to_list(Item) when is_binary(Item) ->
     erlang:binary_to_list(Item);
+to_list(Item) when is_integer(Item) ->
+    erlang:integer_to_list(Item);
+to_list(Item) when is_atom(Item) ->
+    erlang:atom_to_list(Item);
 to_list(Item) when is_list(Item) ->
     Item;
-to_list(Item) when is_atom(Item) ->
-    erlang:atom_to_list(Item).
+to_list(Item) when is_tuple(Item) ->
+    tuple_to_list(Item);
+to_list(Item) when is_float(Item) ->
+    [String] = io_lib:format("~p", [Item]),
+    String.
+
 
 to_binary(Item) when is_list(Item) ->
     list_to_binary(Item);
@@ -288,6 +294,13 @@ to_binary(Item) when is_binary(Item) ->
     Item;
 to_binary(Item) when is_atom(Item) ->
     erlang:atom_to_binary(Item, utf8).
+
+to_atom(Item) when is_list(Item) ->
+    list_to_atom(Item);
+to_atom(Item) when is_binary(Item) ->
+    erlang:binary_to_atom(Item, utf8);
+to_atom(Item) when is_atom(Item) ->
+    Item.
 
 
 
