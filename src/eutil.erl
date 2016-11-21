@@ -9,6 +9,7 @@
          get_ets/2, put_ets/3, del_ets/2, get_ets_keys/1, get_ets_keys/2,
          mapskeydelete/3, mapskeyreplace/4, mapskeyfind/3,
          get_cowboy_post_vals/1,
+         bool_to_int/1, int_to_bool/1,
          eval/2
         ]).
 
@@ -462,4 +463,21 @@ get_cowboy_post_vals(Req) ->
     case OriPostVals of
         [{JsonBin, true}] -> jiffy:decode(JsonBin, [return_maps]);
         Other -> maps:from_list(Other)
+    end.
+
+
+%% true转为数字1，false转为数字0    
+bool_to_int(Boolean) ->
+    case Boolean of
+        true -> 1;
+        false -> 0;
+        undefined -> 0
+    end.
+
+%% 数字1转为true，0或其余数字转为false
+int_to_bool(Num) ->
+    case Num of
+        1 -> true;
+        0 -> false;
+        undefined -> false
     end.
