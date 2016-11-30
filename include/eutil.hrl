@@ -7,7 +7,7 @@
 -define(INFO_MSG(Format, Args), lager:info(Format, Args)).
 -define(NOTICE_MSG(Str), lager:notice(Str)).
 -define(NOTICE_MSG(Format, Args), lager:notice(Format, Args)).
--define(WARNING(Str), lager:warning(Str)).
+-define(WARNING_MSG(Str), lager:warning(Str)).
 -define(WARNING_MSG(Format, Args), lager:warning(Format, Args)).
 -define(ERROR_MSG(Str), lager:error(Str)).
 -define(ERROR_MSG(Format, Args), lager:error(Format, Args)).
