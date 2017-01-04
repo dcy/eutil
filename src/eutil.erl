@@ -10,6 +10,7 @@
          mapskeydelete/3, mapskeyreplace/4, mapskeyfind/3,
          get_cowboy_post_vals/1,
          bool_to_int/1, int_to_bool/1,
+         gen_multi_insert_sql/3, gen_multi_update_sql/3, gen_multi_replace_sql/3,
          eval/2
         ]).
 
@@ -481,3 +482,37 @@ int_to_bool(Num) ->
         0 -> false;
         undefined -> false
     end.
+
+
+format_sql_values(Values) ->
+    Fun = fun(Value) ->
+                  case is_binary(Value) orelse is_list(Value) of
+                      true -> io_lib:format("'~s'", [Value]);
+                      false -> io_lib:format("~p", [Value])
+                  end
+          end,
+    FormatedValues = lists:map(Fun, Values),
+    "(" ++ string:join(FormatedValues, ",") ++ ")".
+
+gen_multi_insert_sql(TableName, FieldList, ValuesList) ->
+    FieldsStr = "(" ++ string:join([io_lib:format("`~s`", [Field]) || Field <- FieldList], ",") ++ ")",
+    ValuesListGen = [format_sql_values(Values) || Values <- ValuesList],
+    ValuesStr = string:join(ValuesListGen, ","),
+    io_lib:format("INSERT INTO `~s` ~s VALUES ~s", [TableName, FieldsStr, ValuesStr]).
+
+gen_multi_replace_sql(TableName, FieldList, ValuesList) ->
+    FieldsStr = "(" ++ string:join([io_lib:format("`~s`", [Field]) || Field <- FieldList], ",") ++ ")",
+    ValuesListGen = [format_sql_values(Values) || Values <- ValuesList],
+    ValuesStr = string:join(ValuesListGen, ","),
+    io_lib:format("REPLACE INTO `~s` ~s VALUES ~s", [TableName, FieldsStr, ValuesStr]).
+
+gen_multi_update_sql(TableName, FieldList, ValuesList) ->
+    FieldsStr = "(" ++ string:join([io_lib:format("`~s`", [Field]) || Field <- FieldList], ",") ++ ")",
+    ValuesListGen = [format_sql_values(Values) || Values <- ValuesList],
+    ValuesStr = string:join(ValuesListGen, ","),
+    GenDuplicateFun = fun(Field) ->
+                              io_lib:format("`~s`=VALUES(`~s`)", [Field, Field])
+                      end,
+    DuplicateList = [GenDuplicateFun(Field) || Field <- FieldList],
+    DuplicateStr = string:join(DuplicateList, ","),
+    io_lib:format("INSERT INTO `~s` ~s VALUES ~s ON DUPLICATE KEY UPDATE ~s", [TableName, FieldsStr, ValuesStr, DuplicateStr]).
