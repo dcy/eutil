@@ -10,6 +10,7 @@
          mapskeydelete/3, mapskeyreplace/4, mapskeyfind/3,
          get_cowboy_post_vals/1,
          bool_to_int/1, int_to_bool/1,
+         json_encode/1, json_decode/1,
          gen_multi_insert_sql/3, gen_multi_update_sql/3, gen_multi_replace_sql/3,
          eval/2
         ]).
@@ -321,7 +322,7 @@ http_get(URL, Headers, Query, Options) ->
     {ok, _StatusCode, _RespHeaders, ClientRef} = hackney:request(get, NewURL, Headers,
                                                                  <<>>, Options),
     {ok, ResultBin} = hackney:body(ClientRef),
-    jsone:decode(ResultBin).
+    json_decode(ResultBin).
 
 
 http_post(URL, Headers, Payload) ->
@@ -331,12 +332,12 @@ http_post(URL, Headers, Payload, Options) when is_binary(Payload) ->
     {ok, _StatusCode, _RespHeaders, ClientRef} = hackney:request(post, URL, Headers,
                                                                  Payload, Options),
     {ok, ResultBin} = hackney:body(ClientRef),
-    jsone:decode(ResultBin);
+    json_decode(ResultBin);
 http_post(URL, Headers, PayloadMaps, Options) when is_map(PayloadMaps) ->
     [Header | _] = Headers,
     Payload = case Header of
                   ?URLENCEDED_HEAD -> list_to_binary(urlencode(PayloadMaps));
-                  ?JSON_HEAD -> jsone:encode(PayloadMaps)
+                  ?JSON_HEAD -> json_encode(PayloadMaps)
               end,
     http_post(URL, Headers, Payload, Options);
 http_post(URL, Headers, PayloadItems, Options) when is_list(PayloadItems) ->
@@ -462,7 +463,7 @@ mapskeyfind(What, Key, [H|T]) ->
 get_cowboy_post_vals(Req) ->
     {ok, OriPostVals, _Req} = cowboy_req:body_qs(Req),
     case OriPostVals of
-        [{JsonBin, true}] -> jsone:decode(JsonBin);
+        [{JsonBin, true}] -> json_decode(JsonBin);
         Other -> maps:from_list(Other)
     end.
 
@@ -516,3 +517,9 @@ gen_multi_update_sql(TableName, FieldList, ValuesList) ->
     DuplicateList = [GenDuplicateFun(Field) || Field <- FieldList],
     DuplicateStr = string:join(DuplicateList, ","),
     io_lib:format("INSERT INTO `~s` ~s VALUES ~s ON DUPLICATE KEY UPDATE ~s", [TableName, FieldsStr, ValuesStr, DuplicateStr]).
+
+json_encode(Maps) ->
+    jsone:encode(Maps).
+
+json_decode(Bin) ->
+    jsone:decode(Bin).
