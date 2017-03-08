@@ -321,7 +321,7 @@ http_get(URL, Headers, Query, Options) ->
     {ok, _StatusCode, _RespHeaders, ClientRef} = hackney:request(get, NewURL, Headers,
                                                                  <<>>, Options),
     {ok, ResultBin} = hackney:body(ClientRef),
-    jiffy:decode(ResultBin, [return_maps]).
+    jsone:decode(ResultBin).
 
 
 http_post(URL, Headers, Payload) ->
@@ -331,12 +331,12 @@ http_post(URL, Headers, Payload, Options) when is_binary(Payload) ->
     {ok, _StatusCode, _RespHeaders, ClientRef} = hackney:request(post, URL, Headers,
                                                                  Payload, Options),
     {ok, ResultBin} = hackney:body(ClientRef),
-    jiffy:decode(ResultBin, [return_maps]);
+    jsone:decode(ResultBin);
 http_post(URL, Headers, PayloadMaps, Options) when is_map(PayloadMaps) ->
     [Header | _] = Headers,
     Payload = case Header of
                   ?URLENCEDED_HEAD -> list_to_binary(urlencode(PayloadMaps));
-                  ?JSON_HEAD -> jiffy:encode(PayloadMaps)
+                  ?JSON_HEAD -> jsone:encode(PayloadMaps)
               end,
     http_post(URL, Headers, Payload, Options);
 http_post(URL, Headers, PayloadItems, Options) when is_list(PayloadItems) ->
@@ -462,7 +462,7 @@ mapskeyfind(What, Key, [H|T]) ->
 get_cowboy_post_vals(Req) ->
     {ok, OriPostVals, _Req} = cowboy_req:body_qs(Req),
     case OriPostVals of
-        [{JsonBin, true}] -> jiffy:decode(JsonBin, [return_maps]);
+        [{JsonBin, true}] -> jsone:decode(JsonBin);
         Other -> maps:from_list(Other)
     end.
 
