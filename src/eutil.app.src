@@ -5,7 +5,9 @@
   {mod, { eutil_app, []}},
   {applications,
    [kernel,
-    stdlib
+    stdlib,
+    lager,
+    jsone
    ]},
   {env,[]},
   {modules, []},

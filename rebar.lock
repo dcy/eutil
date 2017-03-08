@@ -1,4 +1,12 @@
-[{<<"jsone">>,
+[{<<"goldrush">>,
+  {git,"https://github.com/basho/goldrush.git",
+       {ref,"8f1b715d36b650ec1e1f5612c00e28af6ab0de82"}},
+  1},
+ {<<"jsone">>,
   {git,"https://github.com/sile/jsone",
        {ref,"e533179d651cc356556bbe5e4b7caddb0919d593"}},
+  0},
+ {<<"lager">>,
+  {git,"https://github.com/erlang-lager/lager",
+       {ref,"5adfa56a760e5025d7e2a57f982c819e967aaa6c"}},
   0}].
