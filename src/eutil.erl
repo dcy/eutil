@@ -295,6 +295,8 @@ to_binary(Item) when is_list(Item) ->
     list_to_binary(Item);
 to_binary(Item) when is_binary(Item) ->
     Item;
+to_binary(Item) when is_integer(Item) ->
+    erlang:integer_to_binary(Item);
 to_binary(Item) when is_atom(Item) ->
     erlang:atom_to_binary(Item, utf8).
 
