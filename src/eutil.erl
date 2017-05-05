@@ -104,7 +104,7 @@ insert_decimal(0, S) ->
 insert_decimal(Place, S) when Place > 0 ->
     L = length(S),
     case Place - L of
-         0 ->
+        0 ->
             S ++ ".0";
         N when N < 0 ->
             {S0, S1} = lists:split(L + N, S),
@@ -260,20 +260,20 @@ urlencode(Maps) ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 md5_hex(S) ->
-	Md5_bin = erlang:md5(S),
-	Md5_list = binary_to_list(Md5_bin),
-	lists:flatten(list_to_hex(Md5_list)).
+    Md5_bin = erlang:md5(S),
+    Md5_list = binary_to_list(Md5_bin),
+    lists:flatten(list_to_hex(Md5_list)).
 
 list_to_hex(L) ->
-	lists:map(fun(X) -> int_to_hex(X) end, L).
+    lists:map(fun(X) -> int_to_hex(X) end, L).
 
 int_to_hex(N) when N < 256 ->
-	[hex(N div 16), hex(N rem 16)].
+    [hex(N div 16), hex(N rem 16)].
 
 hex(N) when N < 10 ->
-	$0 + N;
+    $0 + N;
 hex(N) when N >= 10, N < 16 ->
-	$a + (N - 10).
+    $a + (N - 10).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 to_list(Item) when is_binary(Item) ->
@@ -426,8 +426,8 @@ get_ets_keys(Fun, Tab, Keys, Key) ->
 %%util:eval("B + A.",[{'A', 0}, {'B', 2}]).
 eval(ExprStr, Environ) ->
     BindFun = fun({Arg, Val}, Bindings) ->
-        erl_eval:add_binding(Arg, Val, Bindings)
-    end,
+                      erl_eval:add_binding(Arg, Val, Bindings)
+              end,
     NewBindings = lists:foldl(BindFun, erl_eval:new_bindings(), Environ),
 
     {ok, Scanned, _} = erl_scan:string(ExprStr),
@@ -437,29 +437,29 @@ eval(ExprStr, Environ) ->
 
 %%%%%%%%%%%%%%%%%%%%%%Maps%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 mapskeydelete(What, Key, [H|T]) ->
-	case maps:get(Key, H) == What of
-		true -> T;
-		false -> [H|mapskeydelete(What, Key, T)]
-	end;
+    case maps:get(Key, H) == What of
+        true -> T;
+        false -> [H|mapskeydelete(What, Key, T)]
+    end;
 mapskeydelete(_, _, []) -> [].
 
 mapskeyreplace(What, Key, L, New) when is_list(L), erlang:is_map(New) ->
-	mapskeyreplace3(What, Key, L, New).
+    mapskeyreplace3(What, Key, L, New).
 
 mapskeyreplace3(What, Key, [H|T], New) ->
-	case maps:get(Key, H) == What of
-		true -> [New|T];
-		false -> [H|mapskeyreplace3(What, Key, T, New)]
-	end;
+    case maps:get(Key, H) == What of
+        true -> [New|T];
+        false -> [H|mapskeyreplace3(What, Key, T, New)]
+    end;
 mapskeyreplace3(_, _, [], _) -> [].
 
 mapskeyfind(_What, _Key, []) ->
-	false;
+    false;
 mapskeyfind(What, Key, [H|T]) ->
-	case maps:get(Key, H) == What of
-		true -> H;
-		false -> mapskeyfind(What, Key, T)
-	end.
+    case maps:get(Key, H) == What of
+        true -> H;
+        false -> mapskeyfind(What, Key, T)
+    end.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 get_cowboy_post_vals(Req) ->
