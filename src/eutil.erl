@@ -12,6 +12,7 @@
          bool_to_int/1, int_to_bool/1,
          json_encode/1, json_decode/1,
          gen_multi_insert_sql/3, gen_multi_update_sql/3, gen_multi_replace_sql/3,
+         utc_string/0, utc_string/1,
          eval/2
         ]).
 
@@ -525,3 +526,12 @@ json_encode(Maps) ->
 
 json_decode(Bin) ->
     jsone:decode(Bin).
+
+utc_string() ->
+    Time = calendar:universal_time(),
+    utc_string(Time).
+
+utc_string(Time) ->
+    {{Year, Month, Day}, {Hour, Min, Sec}} = Time,
+    iolist_to_binary(io_lib:format("~.4.0w-~.2.0w-~.2.0wT~.2.0w:~.2.0w:~.2.0wZ",
+                                   [Year, Month, Day, Hour, Min, Sec])).
