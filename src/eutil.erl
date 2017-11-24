@@ -13,6 +13,9 @@
          json_encode/1, json_decode/1,
          gen_multi_insert_sql/3, gen_multi_update_sql/3, gen_multi_replace_sql/3,
          utc_string/0, utc_string/1,
+         shuffle/1,
+         select_by_weight/1, select_amount_by_weight/2,
+         get_rand_elem/1, get_rand_elems/2,
          eval/2
         ]).
 
@@ -535,3 +538,90 @@ utc_string(Time) ->
     {{Year, Month, Day}, {Hour, Min, Sec}} = Time,
     iolist_to_binary(io_lib:format("~.4.0w-~.2.0w-~.2.0wT~.2.0w:~.2.0w:~.2.0wZ",
                                    [Year, Month, Day, Hour, Min, Sec])).
+
+
+-spec shuffle(L :: list()) ->
+    R :: any().
+shuffle(L) ->
+    L2 = [{rand:uniform(100), Item} || Item <- L],
+    [ShuffledItem || {_, ShuffledItem} <- lists:sort(L2)].
+
+-type key() :: any().
+-type weight() :: integer.
+-type weight_item() :: [{key(), weight()}].
+-spec select_by_weight(List :: list(weight_item())) ->
+    R :: {ok, key()} | {error, _}.
+select_by_weight(List) ->
+    AllWeight = lists:sum([Weight || {_Item, Weight} <- List, Weight >= 0]),
+    case AllWeight > 0 of
+        true ->
+            RandomWeight = rand:uniform(AllWeight),
+            select_by_weight(List, RandomWeight);
+        false ->
+            {error, <<"AllWeightMustGreaterThanZero">>}
+    end.
+
+select_by_weight(List, RandomWeight) ->
+    [{Item, Weight} | RestList] = List,
+    if
+        RandomWeight =< Weight ->
+            {ok, Item};
+        RandomWeight > Weight ->
+            select_by_weight(RestList, RandomWeight - Weight)
+    end.
+
+
+-spec select_amount_by_weight(List :: list(weight_item()), Amount :: integer) ->
+    R :: {ok, list(any)} | {error, _}.
+select_amount_by_weight(_List, Amount) when Amount =< 0 ->
+    {error, <<"AmountMustGreaterThanZero">>};
+select_amount_by_weight(List, Amount) when length(List) == Amount  ->
+    SelectedKeys = [Key || {Key, _} <- List],
+    {ok, SelectedKeys};
+select_amount_by_weight(List, Amount) when length(List) < Amount ->
+    {error, <<"ListLengthMustGreaterThanAmount">>};
+select_amount_by_weight(List, Amount) ->
+    select_amount_by_weight(List, Amount, []).
+
+select_amount_by_weight(_List, 0, SelectedKeys) ->
+    SelectedKeys;
+select_amount_by_weight([], _Amount, SelectedKeys) ->
+    SelectedKeys;
+select_amount_by_weight(List, Amount, SelectedKeys) ->
+    {ok, SelectedKey} = select_by_weight(List),
+    SelectedList = lists:keydelete(SelectedKey, 1, List),
+    select_amount_by_weight(SelectedList, Amount-1, [SelectedKey | SelectedKeys]).
+
+
+-spec get_rand_elem(List :: list()) ->
+    R :: undefined | any().
+get_rand_elem([]) ->
+    undefined;
+get_rand_elem(List) ->
+    {ok, [Elem]} = get_rand_elems(List, 1),
+    Elem.
+
+
+-spec get_rand_elems(List :: list(), Amount :: integer) ->
+    R :: {ok, list()} | {error, _}.
+get_rand_elems([], _Amount) ->
+    {error, <<"ListEmpty">>};
+get_rand_elems(_List, Amount) when Amount =< 0 ->
+    {error, <<"ArgAmountIllegal">>};
+get_rand_elems(List, Amount) when length(List) == Amount ->
+    {ok, List};
+get_rand_elems(List, Amount) when length(List) < Amount ->
+    {error, <<"NoEnoughListElems">>};
+get_rand_elems(List, Amount) ->
+    get_rand_elems(Amount, List, length(List), [], 0).
+
+get_rand_elems(_Amount, [], _ListLen, Elems, _ElemsAmount) ->
+    {ok, Elems};
+get_rand_elems(Amount, _List, _ListLen, Elems, ElemsAmount) when ElemsAmount >= Amount ->
+    {ok, Elems};
+get_rand_elems(Amount, List, ListLen, Elems, ElemsAmount) ->
+    Index = rand:uniform(ListLen),
+    Elem = lists:nth(Index, List),
+    RestList = lists:delete(Elem, List),
+    NewElems = [Elem | Elems],
+    get_rand_elems(Amount, RestList, ListLen-1, NewElems, ElemsAmount+1).
