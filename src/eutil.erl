@@ -16,6 +16,7 @@
          shuffle/1,
          select_by_weight/1, select_amount_by_weight/2,
          get_rand_elem/1, get_rand_elems/2,
+         count_atom/0,
          eval/2
         ]).
 
@@ -625,3 +626,14 @@ get_rand_elems(Amount, List, ListLen, Elems, ElemsAmount) ->
     RestList = lists:delete(Elem, List),
     NewElems = [Elem | Elems],
     get_rand_elems(Amount, RestList, ListLen-1, NewElems, ElemsAmount+1).
+
+
+-spec count_atom() -> R :: integer.
+count_atom() ->
+    Info      = erlang:system_info(info),
+    Chunks    = binary:split(Info, <<"=">>, [global]),
+    [TabInfo] = [X || <<"index_table:atom_tab", X/binary>> <- Chunks],
+    Lines     = binary:split(TabInfo, <<"\n">>, [global]),
+    Chunks2   = [list_to_tuple(binary:split(L, <<": ">>)) || L <- Lines, L =/= <<>>],
+    binary_to_integer(proplists:get_value(<<"entries">>, Chunks2)).
+
