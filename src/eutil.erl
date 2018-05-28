@@ -17,6 +17,7 @@
          select_by_weight/1, select_amount_by_weight/2,
          get_rand_elem/1, get_rand_elems/2,
          count_atom/0,
+         binary_to_hexstr/1, hexstr_to_bianry/1,
          eval/2
         ]).
 
@@ -637,3 +638,9 @@ count_atom() ->
     Chunks2   = [list_to_tuple(binary:split(L, <<": ">>)) || L <- Lines, L =/= <<>>],
     binary_to_integer(proplists:get_value(<<"entries">>, Chunks2)).
 
+
+binary_to_hexstr(Binary) ->
+    lists:flatten([integer_to_list(X, 16) || <<X:4>> <= Binary]).
+
+hexstr_to_bianry(Hexstr) ->
+    << <<(list_to_integer([X], 16)):4>> || X <- Hexstr >>.
